@@ -1,7 +1,7 @@
 """
 
 pyngman.py - an optimal hangman playing python script
-Tom Medley - 2012
+By Tom Medley - 2012 - http://www.tommedley.com
 
 Processes a dictionary to generate lists of words, and calculates the best next
 guess for a given board state.
