@@ -20,7 +20,7 @@ minLength = 3
 def init(inputZip,useProper):
     """ Initialize word list files from a dictionary source """
     #unpack dictionary
-    f = open(inputZip,'r')
+    f = open(inputZip,'rb')
     dictionaryZip = zipfile.ZipFile(f)
     dictionaryZip.extractall(dictLocation)
     #find dic and aff files
@@ -113,8 +113,12 @@ def state(currstate,triedLetters=''):
     letterCounter = dict()
     #find letter probabilities
     for word in candidateList:
+        #use a set to make sure we're only counting a letter once per word
+        chars = set()
         for char in word.strip():
             if char in triedLetters: continue
+            chars.add(char)
+        for char in chars:
             if char in letterCounter:
                 letterCounter[char] = letterCounter[char] + 1
             else:
@@ -127,7 +131,10 @@ def tidy():
     shutil.rmtree(dictLocation)
 
 def applyRules(word,rules,pfx,sfx):
-    """ Helper function to apply a rules to a word, generating a list of output words """
+    """ 
+        Helper function to apply a rules to a word, 
+        generating a list of output words 
+    """
     #split rules up
     resultList = list()
     if len(word) >= minLength:
@@ -203,7 +210,7 @@ def usage(Reason = ""):
     print "    <tried letters> should be a list of letters called, e.g. eoslm. If it is"
     print "    not included, only those letters in <input phrase> wil be counted as called"
     print 
-    print "    Example: pyngman -state _o__l_ eoslm"
+    print "    Example: pyngman -state .o..l. eoslm"
     print
     print "  pyngman -tidy"
     print "    Delete the files created by pyngman, reset the dictionary"
