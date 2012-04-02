@@ -31,8 +31,7 @@ def init(inputZip,useProper):
         if candidate.endswith('.dic'):
             dicFile = open(dictLocation+'/'+candidate,'r')
     if not affFile or not dicFile:
-        print "Couldn't find neccessary dictionary files"
-        return
+        return "Couldn't find neccessary dictionary files"
     print "Found dictionary, processing rules..."
     #parse rule file
     pfx = dict()
@@ -44,6 +43,7 @@ def init(inputZip,useProper):
         if rule[0] == '#': continue
         (ruleType,_,remainder) = rule.partition(' ')
         if ruleType not in ('PFX','SFX'): continue
+        currentIsPFX = ruleType == 'PFX'
         (ruleName,_,ruleBody) = remainder.partition(' ')
         if currentRuleName != ruleName:
             #finished parsing this rule, commit to dict
@@ -80,7 +80,7 @@ def init(inputZip,useProper):
             if len(word) == i:
                 outputFile.write(word+'\n')
 
-def state(currstate,triedLetters=''):
+def state(currstate,triedLetters='',minimal=False):
     """ Work out the next best guess for a given game state """
     wordLength = len(currstate)
     fileLocation = dictLocation + '/wordlist'+str(wordLength)+'.txt'
@@ -105,11 +105,15 @@ def state(currstate,triedLetters=''):
         if re.match(regex,line):
             candidateList.append(line)
     if len(candidateList) == 0:
-        print "No words possible!"
-        return
+        if minimal:
+            return "pyngman-fail"
+        else:
+            return "No words possible!"
     if len(candidateList) == 1:
-        print "The only possible word is: "+candidateList[0]
-        return
+        if minimal:
+            return candidateList[0].strip()
+        else:
+            return "The only possible word is: "+candidateList[0].strip()
     letterCounter = dict()
     #find letter probabilities
     for word in candidateList:
@@ -124,7 +128,8 @@ def state(currstate,triedLetters=''):
             else:
                 letterCounter[char] = 1
     letterCounter = sortDict(letterCounter)
-    print "Your best next guess is: "+letterCounter[0]
+    if not minimal: return "Your best next guess is: "+letterCounter[0]
+    return letterCounter[0]
 
 def tidy():
     """ remove temp files """
@@ -162,9 +167,9 @@ def applyRules(word,rules,pfx,sfx):
                 #match!
                 if replaces == '0':
                     if isPrefix:
-                        replaced = word + replacement
-                    else:
                         replaced = replacement + word
+                    else:
+                        replaced = word + replacement
                     if(len(replaced) >= minLength):
                         resultList.append(replaced)
                 else:
@@ -191,10 +196,10 @@ def sortDict(d,desc = True):
         backitems.reverse()
     return [ backitems[i][1] for i in range(0,len(backitems))]
 
-def usage(Reason = ""):
+def usage(reason = ""):
     """ Print a usage statement """
-    if Reason != "":
-        print Reason
+    if reason != "":
+        print reason
         print
     print "usage:"
     print
@@ -203,7 +208,7 @@ def usage(Reason = ""):
     print "    <input file> must be a zip containing a .dic and a .aff. If -p is set,"
     print "    Proper nouns will be included, otherwise they will be excluded"
     print
-    print "  pyngman -state <input phrase> [<tried letters>]"
+    print "  pyngman -state [-m] <input phrase> [<tried letters>]"
     print "    Return the best guess for the given phrase. Input the phrase with . for"
     print "    an unknown letter, or for the letter itself otherwise."
     print "    e.g.: .o..l."
@@ -211,33 +216,40 @@ def usage(Reason = ""):
     print "    not included, only those letters in <input phrase> wil be counted as called"
     print 
     print "    Example: pyngman -state .o..l. eoslm"
+    print 
+    print "    If -m is set, minimal output will be provided (useful for scripting)"
     print
     print "  pyngman -tidy"
     print "    Delete the files created by pyngman, reset the dictionary"
 
 #main
+if __name__ == "__main__":
+    argc = len(sys.argv)
 
-argc = len(sys.argv)
-
-if argc < 2:
-    usage("Please specify an operation:")
-elif sys.argv[1] == '-init':
-    if argc == 4 and sys.argv[2] == '-p':
-        init(sys.argv[3],True)
-    elif argc == 3:
-        init(sys.argv[2],False)
+    if argc < 2:
+        usage("Please specify an operation:")
+    elif sys.argv[1] == '-init':
+        if argc == 4 and sys.argv[2] == '-p':
+            init(sys.argv[3],True)
+        elif argc == 3:
+            init(sys.argv[2],False)
+        else:
+            usage("Invalid arguments supplied:")
+    elif sys.argv[1] == '-state':
+        if argc == 3:
+            print state(sys.argv[2])
+        elif argc == 5 and sys.argv[2] == '-m':
+            print state(sys.argv[3],sys.argv[4],True)
+        elif argc == 4:
+            if sys.argv[2] == '-m':
+                print state(sys.argv[3],'',True)
+            else:
+                print state(sys.argv[2],sys.argv[3])
+        else:
+            usage()
+    elif sys.argv[1] == '-tidy' and argc == 2:
+        tidy()
     else:
         usage("Invalid arguments supplied:")
-elif sys.argv[1] == '-state':
-    if argc == 3:
-        state(sys.argv[2])
-    elif argc == 4:
-        state(sys.argv[2],sys.argv[3])
-    else:
-        usage()
-elif sys.argv[1] == '-tidy' and argc == 2:
-    tidy()
-else:
-    usage("Invalid arguments supplied:")
     
 
