@@ -62,7 +62,7 @@ def init(inputZip,useProper):
     for word in dicFile:
         (stem,_,rules) = word.partition('/')
         if not stem.isalpha(): continue
-        if not useProper and not stem.islower: continue
+        if not useProper and not stem.strip().islower(): continue
         if rules == "":
             #no rules for this word
             if len(stem) >= minLength:
@@ -70,10 +70,12 @@ def init(inputZip,useProper):
         else:
             wordList.extend(applyRules(stem.lower(),rules,pfx,sfx))
     print "Printing wordlists..."
-    #sort by length
-    wordList.sort(key=len)
-    maxLength = len(wordList[len(wordList)-1])
-    for i in range(minLength,maxLength+1):
+    #make unique
+    wordList = list(set(wordList))
+    lengths = set()
+    for word in wordList:
+        lengths.add(len(word))
+    for i in lengths:
         outputFile = open(dictLocation + '/wordlist'+str(i)+'.txt','w')
         #Stupidely inefficient, but I don't care
         for word in wordList:
