@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Pyngman : Optimal Hangman-Playing Python Script" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Pyngman</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/fredley/pyngman">Fork Me on GitHub</a>
+
+          <h1 id="project_title">Pyngman</h1>
+          <h2 id="project_tagline">Optimal Hangman-Playing Python Script</h2>
+
+          <section id="downloads">
+            <a class="zip_download_link" href="https://github.com/fredley/pyngman/zipball/master">Download this project as a .zip file</a>
+            <a class="tar_download_link" href="https://github.com/fredley/pyngman/tarball/master">Download this project as a tar.gz file</a>
+          </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h2>Play Hangman Perfectly</h2>
+
+<p>This script processes a dictionary and will allow you to make optimal guesses in the game hangman. You can also work out what words are the 'hardest' to guess, which will give you the best chance of hanging your opponent.</p>
+
+<h3>How to use pyngman</h3>
+
+<ol>
+<li><p><strong>Grab a dictionary</strong> - you'll need a dictionary to play. Tested with <a href="http://en-gb.pyxidium.co.uk/dictionary/OOo.php">Pyxidium</a>'s <a href="http://en-gb.pyxidium.co.uk/dictionary/OOo.php">British English dictionary</a>. A <a href="http://wiki.services.openoffice.org/wiki/Dictionaries">full list of dictionaries</a> is available on the <a href="http://wiki.services.openoffice.org/wiki/Dictionaries">Open Office Wiki</a>, note that non-English characters have not been tested.</p></li>
+<li><p><strong>Initialise pyngman</strong> - pyngman needs to process the dictionary to generate word lists, so you need to initialise it before you can do anything. From the command line, run:<br><code>$ python pyngman.py -init en_GB.zip</code><br>
+If you want to include proper nouns (any words containing capital letters), use <code>-p</code>:<br><code>$ python pyngman.py -init -p en_GB.zip</code>  </p></li>
+<li><p><strong>Calculate Optimal guesses</strong> - we're ready to start playing hangman! Pass pyngman a state, and a list of letters you've tried and it'll tell you what your optimal next guess is:</p></li>
+</ol><pre><code>$ python pyngman.py -state ..e.. est
+&gt; Your best next guess is: a
+</code></pre>
+
+<h3>Generating statistics</h3>
+
+<p><code>hangman.py</code> emulates hangman, and together with <code>test.py</code> and a bit of fiddling, you can easily walk through all possible games of hangman to generate statistics. Be warned though, full walks of the dictionary take hours to complete!</p>
+
+<h3>Author</h3>
+
+<p>pyngman was an afternoon project of <a href="http://tommedley.com">Tom Medley</a>.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Pyngman maintained by <a href="https://github.com/fredley">fredley</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
