@@ -19,6 +19,14 @@ The script will parse the dictionary into a complete list of words, removing
 words deemed 'invalid' for hangman, such as those containing apostrophes or 
 dashes.
 
+##Do More
+
+Included is a simple tool for playing Hangman games - `hangman.py`. `hangman.py`
+requires pyngman to have been initialized before it works. It can be used with 
+`test.py` to run a test against the dictionary to see what pyngman's odds are of
+winning. In my testing this has been pretty good, ~500 losses per 80k words, or
+a failure rate of 0.000625%. 
+
 ##License
 
 pyngman was created by [Tom Medley](http://www.tommedley.com), and is released 

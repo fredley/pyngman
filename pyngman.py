@@ -210,13 +210,6 @@ def containsAny(str,chars):
     """ Check if str contains any of the characters in chars """
     return 1 in [c in str for c in chars]
 
-def sortDict(d):
-    """ Sort a dict's keys by its values """
-    sorted = dict()
-    for key, value in sorted(d.iteritems(), key=lambda (k,v): (v,k)):
-        sorted[key] = value
-    return sorted.reverse()
-
 def usage(reason = ""):
     """ Print a usage statement """
     if reason != "":
