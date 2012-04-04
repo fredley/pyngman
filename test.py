@@ -1,17 +1,20 @@
-import pyngman, sys, os
-from HangmanClass import Hangman
+import sys, os
+from pyngman import Pyngman
+from hangman import Hangman
 
 dictLocation = './pyngman_temp'
 minLength = 3
 hm = Hangman()
+pm = Pyngman()
 
 def testWord(word, debug=False):
+    if not pm.initialized: pm.init()
     nextState = hm.init(word)
     if debug: print "Initial State: "+nextState
     tries = 0
     triedLetters = ''
     while(True):
-        nextGuess = pyngman.state(nextState,triedLetters,True)
+        nextGuess = pm.state(nextState,triedLetters)
         triedLetters = triedLetters + nextGuess
         if nextGuess == 'pyngman-fail':
             print 'Pyngman word error, word probably not in dictionary'
@@ -30,6 +33,7 @@ def testDictionary(debug=False):
     won = 0
     lost = 0
     words = 0
+    pm.init()
     for i in range (minLength,30):
         if os.path.exists(dictLocation + '/wordlist'+str(i)+'.txt'):
             print "Testing words of length",i
@@ -51,6 +55,6 @@ if __name__ == "__main__":
         debug = True
     if argc == 2 and debug: testDictionary(True)
     if argc == 1: testDictionary()
-    if argc == 2 and not debug: testWord(argv[1],debug)
-    if argc == 3 and debug: testWord(argv[2],debug)
+    if argc == 2 and not debug: print testWord(sys.argv[1],debug)
+    if argc == 3 and debug: print testWord(sys.argv[2],debug)
     

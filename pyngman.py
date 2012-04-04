@@ -11,8 +11,7 @@ http://www.opensource.org/licenses/GPL-3.0
 
 """
 
-import zipfile
-import sys, os, re, shutil
+import zipfile, sys, os, re, shutil, random
 
 dictLocation = './pyngman_temp'
 minLength = 3
@@ -82,10 +81,8 @@ def init(inputZip,useProper):
             if len(word) == i:
                 outputFile.write(word+'\n')
 
-def state(currstate,triedLetters='',minimal=False):
+def state(wordList,currstate,triedLetters='',minimal=False):
     """ Work out the next best guess for a given game state """
-    wordLength = len(currstate)
-    fileLocation = dictLocation + '/wordlist'+str(wordLength)+'.txt'
     #Sort out the contents of triedLetters
     letters = set()
     for char in currstate: letters.add(char.lower())
@@ -97,15 +94,10 @@ def state(currstate,triedLetters='',minimal=False):
         regex = currstate.replace('.','[^'+triedLetters+']')
     else:
         regex = currstate
-    try:
-        wordListFile = open(fileLocation,'r')
-    except IOError as e:
-        print "Counldn't find wordlist file, did you run -init?"
-        return
     candidateList = list()
-    for line in wordListFile:
-        if re.match(regex,line):
-            candidateList.append(line)
+    for word in wordList:
+        if re.match(regex,word):
+            candidateList.append(word)
     if len(candidateList) == 0:
         if minimal:
             return "pyngman-fail"
@@ -129,9 +121,38 @@ def state(currstate,triedLetters='',minimal=False):
                 letterCounter[char] = letterCounter[char] + 1
             else:
                 letterCounter[char] = 1
-    letterCounter = sortDict(letterCounter)
-    if not minimal: return "Your best next guess is: "+letterCounter[0]
-    return letterCounter[0]
+    sortedLetters = sorted(letterCounter, key=letterCounter.get, reverse=True)
+    # Optimization: Better to go for a non-deterministic approach. If there is
+    # more than one letter with the same optimal probability, choose randomly
+    # between them
+    first = True
+    optimalLetters = list()
+    for letter in sortedLetters:
+        if first: 
+            optimalCount = letterCounter[letter]
+            first = False
+        if letterCounter[letter] == optimalCount: optimalLetters.append(letter)
+        else: break
+    if len(optimalLetters) > 1:
+        guess = random.choice(optimalLetters)
+    else:
+        guess = optimalLetters[0]
+    if not minimal: return "Your best next guess is: "+guess
+    return guess
+    
+def fileState(currstate,triedLetters='',minimal=False):
+    """ Process a state call, loading the wordList from the disk"""
+    fileLocation = dictLocation + '/wordlist'+str(len(currstate))+'.txt'
+    try:
+        wordListFile = open(fileLocation,'r')
+    except IOError as e:
+        return "Counldn't find wordlist file, did you run -init?"
+    wordList = list()
+    for line in wordListFile:
+        if line.strip() != "":
+            wordList.append(line.strip())
+    return state(wordList,currstate,triedLetters,minimal)
+        
 
 def tidy():
     """ remove temp files """
@@ -189,14 +210,12 @@ def containsAny(str,chars):
     """ Check if str contains any of the characters in chars """
     return 1 in [c in str for c in chars]
 
-def sortDict(d,desc = True):
+def sortDict(d):
     """ Sort a dict's keys by its values """
-    items=d.items()
-    backitems=[ [v[1],v[0]] for v in items]
-    backitems.sort()
-    if desc:
-        backitems.reverse()
-    return [ backitems[i][1] for i in range(0,len(backitems))]
+    sorted = dict()
+    for key, value in sorted(d.iteritems(), key=lambda (k,v): (v,k)):
+        sorted[key] = value
+    return sorted.reverse()
 
 def usage(reason = ""):
     """ Print a usage statement """
@@ -239,14 +258,14 @@ if __name__ == "__main__":
             usage("Invalid arguments supplied:")
     elif sys.argv[1] == '-state':
         if argc == 3:
-            print state(sys.argv[2])
+            print fileState(sys.argv[2])
         elif argc == 5 and sys.argv[2] == '-m':
-            print state(sys.argv[3],sys.argv[4],True)
+            print fileState(sys.argv[3],sys.argv[4],True)
         elif argc == 4:
             if sys.argv[2] == '-m':
-                print state(sys.argv[3],'',True)
+                print fileState(sys.argv[3],'',True)
             else:
-                print state(sys.argv[2],sys.argv[3])
+                print fileState(sys.argv[2],sys.argv[3])
         else:
             usage()
     elif sys.argv[1] == '-tidy' and argc == 2:
@@ -254,4 +273,26 @@ if __name__ == "__main__":
     else:
         usage("Invalid arguments supplied:")
     
-
+class Pyngman:
+    """ Pyngman class for easy testing """
+    initialized = False
+    wordLists = dict()
+    def init(self):
+        global dictLocation
+        #must be called after pyngman's init
+        #load up wordlists into memory
+        for i in range(minLength,30):
+            if os.path.exists(dictLocation + '/wordlist'+str(i)+'.txt'):
+                wordListFile = open(dictLocation + '/wordlist'+str(i)+'.txt','r')
+                self.wordLists[i] = list()
+                for line in wordListFile:
+                    if line.strip() != "":
+                        self.wordLists[i].append(line.strip())
+                self.wordLists[i].sort() #just because it's nice
+                wordListFile.close()
+        initialized = True
+    def state(self,currstate,triedLetters=''):
+        global state
+        wordLength = len(currstate)
+        #Sort out the contents of triedLetters
+        return state(self.wordLists[len(currstate)],currstate,triedLetters,True)

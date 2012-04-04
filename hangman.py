@@ -173,3 +173,39 @@ if __name__ == "__main__":
         print guess(sys.argv[3],True)
     else:
         usage("Invalid arguments supplied:")
+
+        
+class Hangman:
+    """ Hangman class for easy testing """
+    word=''
+    lives=0
+    state=''
+    def init(self,gameWord):
+        global startLives
+        self.word = gameWord
+        self.lives = startLives
+        self.state = '.'*len(gameWord)
+        return self.state
+    def guess(self,char):
+        if self.lives == 0: return "gameover"
+        if len(char) > 1 and char == self.word: return "win"
+        elif len(char) > 1: return self.miss()
+        if char in self.state: return self.miss()
+        if char in self.word:
+            i = 0
+            newState = ''
+            for letter in self.word:
+                if self.word[i] == char:
+                    newState = newState + char
+                else:
+                    newState = newState + self.state[i]
+                i = i + 1
+            self.state = newState
+            if '.' not in self.state: return "win"
+            else: return self.state
+        else:
+            return self.miss()
+    def miss(self):
+        self.lives = self.lives - 1
+        if self.lives == 0: return "lose"
+        else: return self.state
