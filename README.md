@@ -12,8 +12,7 @@ your optimal next move is.
 ##Dictionaries
 
 pyngman is designed to work with a `.zip` dictionary file, such as the ones
-available at [Pyxidium](http://en-gb.pyxidium.co.uk/dictionary/OOo.php) for
-Open Office. I have tested the script with their en-GB dictionary.
+available for [Open Office](http://extensions.openoffice.org/en/project/english-dictionaries-apache-openoffice). I have tested the script with their en-GB dictionary.
 
 The script will parse the dictionary into a complete list of words, removing 
 words deemed 'invalid' for hangman, such as those containing apostrophes or 
